@@ -43,8 +43,13 @@ async function run() {
         
         
         app.get('/gardeners', async (req, res) => {
-            console.log('is this showing', req.body)
+            // console.log('is this showing', req.body)
             const gardeners = await usersCollection.find({status:"active"}).toArray()
+            res.json({data:gardeners, item:gardeners.length})
+        })
+        app.get('/explore-gardeners', async (req, res) => {
+            // console.log('is this showing', req.body)
+            const gardeners = await usersCollection.find({}).toArray()
             res.json({data:gardeners, item:gardeners.length})
         })
         
@@ -59,7 +64,7 @@ async function run() {
             const like = await tipsCollection.findOneAndUpdate(
                 {id:id},{$inc:{totalLiked:1}},{ returnDocument: "after" }
             )
-            console.log(like)
+            // console.log(like)
             res.json(like.value)
         })
 
@@ -79,7 +84,7 @@ run().catch(console.dir);
 
 
 
-// **************curd operation start from here***********************
+
 
 app.get('/', (req, res) => {
     res.send('Hello World! this is from green hub')
