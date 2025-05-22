@@ -58,6 +58,20 @@ async function run() {
             res.json(tips)
         })
         
+        // post method
+        app.post('/addtip',async(req,res) =>{
+            try{
+                const addtips = await req.body
+                await tipsCollection.insertOne(addtips)
+            res.send('data is saved')
+            }
+            catch{
+                res.send('find a error');
+                
+            }
+            
+        })
+        
         // *********for like*********
         app.patch('/like/:id', async (req, res) => {
             const id = Number(req.params.id)
