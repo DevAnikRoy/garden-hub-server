@@ -54,7 +54,12 @@ async function run() {
         })
         
         app.get('/gardeners/tips', async (req, res) => {
-            const tips = await tipsCollection.find().toArray()
+            const tips = await tipsCollection.find().limit(6).toArray()
+            res.json(tips)
+        })
+        
+        app.get('/browse-tips', async (req, res) => {
+            const tips = await tipsCollection.find().limit(6).toArray()
             res.json(tips)
         })
         
