@@ -80,19 +80,14 @@ async function run() {
         });
 
         // post method
-        app.post('/addtip', async (req, res) => {
+        app.post('/share-tip', async (req, res) => {
             try {
                 const newTip = req.body;
-
                 const lastTip = await tipsCollection.find().sort({ id: -1 }).limit(1).toArray();
-
                 const lastId = lastTip.length > 0 ? lastTip[0].id : 0;
                 const newId = lastId + 1;
-
                 newTip.id = newId;
-
                 await tipsCollection.insertOne(newTip);
-
                 res.status(201).send({ message: 'Tip added successfully', id: newId });
             } catch (error) {
                 console.error('Error adding tip:', error);
