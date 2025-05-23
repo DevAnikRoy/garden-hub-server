@@ -1,6 +1,6 @@
 const express = require('express')
 const cors = require('cors')
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 
 const app = express()
@@ -34,54 +34,77 @@ async function run() {
         await client.connect();
 
         // main cluster
-        const db = client.db('greenhubproject');
-        console.log(client)
+        const db = client.db('greenhubproject')
+
         const usersCollection = db.collection('gardeners')
-        
+
         // tips collection
         const tipsCollection = db.collection('trendingTips')
-        
-        
+
+
         app.get('/gardeners', async (req, res) => {
             // console.log('is this showing', req.body)
-            const gardeners = await usersCollection.find({status:"active"}).toArray()
-            res.json({data:gardeners, item:gardeners.length})
+            const gardeners = await usersCollection.find({ status: "active" }).toArray()
+            res.json({ data: gardeners, item: gardeners.length })
         })
         app.get('/explore-gardeners', async (req, res) => {
             // console.log('is this showing', req.body)
             const gardeners = await usersCollection.find({}).toArray()
-            res.json({data:gardeners, item:gardeners.length})
+            res.json({ data: gardeners, item: gardeners.length })
         })
-        
+
         app.get('/gardeners/tips', async (req, res) => {
             const tips = await tipsCollection.find().limit(6).toArray()
             res.json(tips)
         })
-        
+
         app.get('/browse-tips', async (req, res) => {
-            const tips = await tipsCollection.find().limit(6).toArray()
+            const tips = await tipsCollection.find().toArray()
             res.json(tips)
         })
-        
+
+        app.get('/browse-tips/:id', async (req, res) => {
+            const { id } = req.params;
+            console.log(id)
+            try {
+                const tip = await tipsCollection.findOne({ id: Number(id) });
+                console.log(tipsCollection)
+                if (!tip) {
+                    return res.status(404).json({ error: 'Tip not found' });
+                }
+                res.json(tip);
+            } catch (error) {
+                console.error('Error fetching tip:', error);
+                res.status(500).json({ error: 'Failed to fetch tip' });
+            }
+        });
+
         // post method
-        app.post('/addtip',async(req,res) =>{
-            try{
-                const addtips = await req.body
-                await tipsCollection.insertOne(addtips)
-            res.send('data is saved')
+        app.post('/addtip', async (req, res) => {
+            try {
+                const newTip = req.body;
+
+                const lastTip = await tipsCollection.find().sort({ id: -1 }).limit(1).toArray();
+
+                const lastId = lastTip.length > 0 ? lastTip[0].id : 0;
+                const newId = lastId + 1;
+
+                newTip.id = newId;
+
+                await tipsCollection.insertOne(newTip);
+
+                res.status(201).send({ message: 'Tip added successfully', id: newId });
+            } catch (error) {
+                console.error('Error adding tip:', error);
+                res.status(500).send('An error occurred while saving the tip');
             }
-            catch{
-                res.send('find a error');
-                
-            }
-            
-        })
-        
+        });
+
         // *********for like*********
         app.patch('/like/:id', async (req, res) => {
             const id = Number(req.params.id)
             const like = await tipsCollection.findOneAndUpdate(
-                {id:id},{$inc:{totalLiked:1}},{ returnDocument: "after" }
+                { id: id }, { $inc: { totalLiked: 1 } }, { returnDocument: "after" }
             )
             // console.log(like)
             res.json(like.value)
