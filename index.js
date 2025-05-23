@@ -62,7 +62,6 @@ async function run() {
             const tips = await tipsCollection.find().toArray()
             res.json(tips)
         })
-
         app.get('/browse-tips/:id', async (req, res) => {
             const { id } = req.params;
             console.log(id)
@@ -94,6 +93,18 @@ async function run() {
                 res.status(500).send('An error occurred while saving the tip');
             }
         });
+        
+        app.get('/my-tips', async (req, res) => {
+            const tips = await tipsCollection.find().toArray()
+            res.json(tips)
+        })
+        // for delete
+        app.delete('/my-tips/:id', async(req, res) => {
+            const {id} = req.params;
+            const query = {id: Number(id)}
+            const result = await tipsCollection.deleteOne(query)
+            res.send(result)
+        })
 
         // *********for like*********
         app.patch('/like/:id', async (req, res) => {
