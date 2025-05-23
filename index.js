@@ -98,11 +98,31 @@ async function run() {
             const tips = await tipsCollection.find().toArray()
             res.json(tips)
         })
+        
+        app.get('/my-tips/:id', async (req, res) => {
+            const tips = await tipsCollection.find().toArray()
+            res.json(tips)
+        })
+        
         // for delete
         app.delete('/my-tips/:id', async(req, res) => {
             const {id} = req.params;
             const query = {id: Number(id)}
             const result = await tipsCollection.deleteOne(query)
+            res.send(result)
+        })
+        // for update my tips
+        app.put('/update-tip/:id', async (req, res) => {
+            const {id} = req.params;
+            const filter = {id: Number(id)}
+            const options = { upsert: true };
+            const updatedTips = req.body;
+            const updatedDoc = {
+                $set: updatedTips
+            }
+            
+            const result = await tipsCollection.updateOne(filter, updatedDoc, options);
+            
             res.send(result)
         })
 
@@ -115,10 +135,6 @@ async function run() {
             // console.log(like)
             res.json(like.value)
         })
-
-
-
-
 
         // Send a ping to confirm a successful connection
         await client.db("greenhubproject").command({ ping: 1 });
