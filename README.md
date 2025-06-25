@@ -1,6 +1,6 @@
 # 🌿 Garden Hub
 
-**Live Site URL:** [https://garden-hub.netlify.app](https://garden-hub.netlify.app)
+**Live Site URL:** https://garden-hub-53195.web.app/
 
 ## 📌 Project Description
 
